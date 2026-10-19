@@ -11,7 +11,9 @@ int main(int argc, char* argv[]){
   noqiflush();
   keypad(stdscr, TRUE);
 
-  Player* players = (Player *)malloc(sizeof(Player));
+  Map map = {map1, NULL};
+
+  Player* players = NULL;
   players->y = 4;
   players->x = 4;
   players->c = 'O';
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]){
 
     for (int i = 0; i < 9; i++){
       for (int j = 0; j < 9; j++){
-        if(map[i][j] == 'S'){
+        if(map.map[i] == 'S'){
           sy = i;
           sx = j;
         }
@@ -34,36 +36,36 @@ int main(int argc, char* argv[]){
       }
     }
 
-    if (c == 'r'){
-        players->y = sy;
-        players->x = sx;
-        map[sy][sx] = players->c;
-      mvprintw(sy, sx, "%c", map[sy][sx]);
+    if (c == 'r'){ 
+      players = (Player *)malloc(sizeof(Player));
+      players->y = sy;
+      players->x = sx;
+      map[sy][sx] = players->c;
+      mvprintw(sy, sx, "%c", () ?  : map[sy][sx]);
     }
 
     move(8, 8);
-  }
-  while ((c = getch()) != 'q');
-/*
-  Player* p = NULL;
-  char input = '\0';
-  while((input = getch()) != 'q' || map[players->y][players->x] != 'E'){
-    clear();
-    if(map[players->y-1][players->x] == '.'){
-      p = (Player*)malloc(sizeof(Player));
-      players->next = p;
-    }
-    refresh();
-  }
+  }while ((c = getch()) != 'q');
+  /*
+     Player* p = NULL;
+     char input = '\0';
+     while((input = getch()) != 'q' || map[players->y][players->x] != 'E'){
+     clear();
+     if(map[players->y-1][players->x] == '.'){
+     p = (Player*)malloc(sizeof(Player));
+     players->next = p;
+     }
+     refresh();
+     }
 
-  Player* ptr = players;
-  while(ptr->next){
-    ptr = ptr->next;
-  }
-  ptr->next = p;
+     Player* ptr = players;
+     while(ptr->next){
+     ptr = ptr->next;
+     }
+     ptr->next = p;
 
-  free(players);
-  */
+     free(players);
+     */
 
   endwin();
   return 0;

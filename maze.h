@@ -1,10 +1,7 @@
-
 #define WIDTH 8
 #define HEIGHT 8
 
 #define MAXTRIES 10
-
-int solved = 0;
 
 char map0[8][9] = {
   {"########"},
@@ -62,7 +59,6 @@ char map[8][9] = {
   {"########"}
 };
 
-
 struct Player {
   int y;
   int x;
@@ -72,3 +68,10 @@ struct Player {
   struct Player* next;
 };
 typedef struct Player Player;
+
+struct Map {
+  char map[8][8];
+
+  Player* player;
+};
+typedef struct Map Map;
