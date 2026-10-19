@@ -1,78 +1,6 @@
+#include <stdlib.h>
 #include <stdio.h>
-
-#define WIDTH 8
-#define HEIGHT 8
-
-#define MAXTRIES 40
-
-int solved = 0;
-
-char map0[8][8] = {
-  {"########"},
-  {"S...####"},
-  {"###.####"},
-  {"#......#"},
-  {"#.####.#"},
-  {"#.####.#"},
-  {"#......#"},
-  {"########"}
-};
-char map1[8][8] = {
-  {"########"},
-  {"S...####"},
-  {"###.####"},
-  {"#......#"},
-  {"#.####.#"},
-  {"#.####.E"},
-  {"#......#"},
-  {"########"}
-};
-
-char map2[8][8] = {
-  {"########"},
-  {"S...####"},
-  {"###.####"},
-  {"#......#"},
-  {"#.####.#"},
-  {"#.####.#"},
-  {"#......#"},
-  {"##E#####"}
-};
-
-// bugged
-// WHEN GOES P.X = P.X -1 -> CHECKS P.X = -1 -> GOES TO PREVIOUS BLOCK?????????
-char map3[8][8] = {
-  {"###....E"},
-  {"S...####"},
-  {"###.####"},
-  {"#......#"},
-  {"#.####.#"},
-  {"#.####.#"},
-  {"#......#"},
-  {"########"}
-};
-
-char map[8][8] = {
-  {"###....#"},
-  {"S...##.E"},
-  {"###.####"},
-  {"#......#"},
-  {"#.####.#"},
-  {"#.####.#"},
-  {"#......#"},
-  {"########"}
-};
-
-
-typedef struct {
-  int y;
-  int x;
-
-  char active;
-} Player;
-
-Player players[10];
-
+#include "maze.h"
 
 void printmap() {
   // print map
@@ -126,50 +54,76 @@ Player* solve(Player* p) {
     p->active = 'E';
     solved = 1;
   }
-  printf("after solve: p.y: %d, p.x: %d\n", p->y, p->x);
-  return p;
-}
+  printf("no E: p.y: %d, p.x: %d\n", p->y, p->x);
+  if (solved) return p;
 
-Player* traverse(Player* p) {
+
+  printf("traversing\n");
+
+  int routes = 0;
+
   if (map[p->y+1][p->x+0] == '.') {
-
-    Player p2;
-    players[1] = p2;
-    p2.y = p->y+1;
-    p2.x = p->x+0;
-
-    printf("players size: %d\n", sizeof(players) / sizeof(Player));
-    map[p->y][p->x] = 'x';
-//    p->y+=1;
- //   p->x+=0;
-    printf("moved down\n");
-    map[p->y][p->x] = 'O';
+    printf("route down\n");
+    routes++;
   }
-  else if (map[p->y-1][p->x+0] == '.') {
+  if (map[p->y-1][p->x+0] == '.') {
+    printf("route up\n");
+    routes++;
+  }
+  if (map[p->y+0][p->x+1] == '.') {
+    printf("route right\n");
+    routes++;
+  }
+  if (map[p->y+0][p->x-1] == '.') {
+    printf("route left\n");
+    routes++;
+  }
+
+//  cacheline** cache = (cacheline**)malloc(S * sizeof(cacheline*));
+  Player** players = (Player**)malloc (1 * sizeof(Player*));
+  if (routes > 1) {
+    for (int i = 0; i < routes; i++) {
+      Player* player = (Player*)malloc (1 * sizeof(Player));
+      players[i] = player;
+    }
+  }
+    for (int i = 0; i < routes; i++) {
+      printf("%d\n", sizeof(players) / sizeof(Player**));
+    }
+
+  if (map[p->y+1][p->x+0] == '.') {
+    map[p->y][p->x] = 'x';
+    p->y+=1;
+    p->x+=0;
+    printf("moved up\n");
+  }
+  if (map[p->y-1][p->x+0] == '.') {
     map[p->y][p->x] = 'x';
     p->y-=1;
     p->x+=0;
-    printf("moved up\n");
-    map[p->y][p->x] = 'O';
+    printf("moved down\n");
   }
-  else if (map[p->y+0][p->x+1] == '.') {
+  if (map[p->y+0][p->x+1] == '.') {
     map[p->y][p->x] = 'x';
     p->y+=0;
     p->x+=1;
     printf("moved right\n");
-    map[p->y][p->x] = 'O';
   }
-  else if (map[p->y+0][p->x-1] == '.') {
+  if (map[p->y+0][p->x-1] == '.') {
     map[p->y][p->x] = 'x';
     p->y+=0;
     p->x-=1;
     printf("moved left\n");
-    map[p->y][p->x] = 'O';
   }
+  printf("routes: %d\n", routes);
+  map[p->y][p->x] = 'O';
+  return p;
 }
 
 Player* backtrack(Player* p) {
+
   printf("backtracking\n");
+
   if (map[p->y+1][p->x+0] == 'x') {
     map[p->y][p->x] = '-';
     p->y+=1;
@@ -201,11 +155,12 @@ Player* backtrack(Player* p) {
 }
 
 int main() {
+  Player players[10];
 
   // print initial map
   printmap();
 
-  // put player on map
+  // initialize player on map at posititon 'S'
   Player p;
   players[0] = p;
   for (int i = 0; i < HEIGHT; i++) {
@@ -218,12 +173,15 @@ int main() {
       }
     }
   }
+
+  // print map with player on it
   printmap();
 
-  int count = 1;
+  // run and count how many tries
+  int tries = 1;
 //  while (solved != 1) {
   for (int i = 0; i < MAXTRIES; i++) {
-    printf("\n\n ----- Attempt %d ----- \n\n", count);
+    printf("\n\n ----- Attempt %d ----- \n\n", tries);
     solve(&p);
     if (solved == 1) {
       printf("solved!!!!!!\n");
@@ -231,10 +189,11 @@ int main() {
       break;
     }
     else if ((map[p.y+1][p.x+0] != '.') && (map[p.y-1][p.x+0] != '.') && (map[p.y+0][p.x+1] != '.') && (map[p.y+0][p.x-1] != '.')) {
-      backtrack(&p);
+    //  backtrack(&p);
     }
-    traverse(&p);
-    count++;
+
+
+    tries++;
     printmap();
   }
 
